@@ -1,0 +1,46 @@
+.mapboxgl-popup-close-button {
+  color: #000;
+  background-color: #ddd;
+  font-size: 18px;
+  font-weight: 400;
+  height: auto;
+  line-height: 1;
+  padding: 4px 8px;
+}
+
+.mapboxgl-popup-close-button:hover {
+  color: #fff;
+  background-color: #000;
+}
+
+.popup-container {
+  padding: 10px 20px 5px 10px;
+}
+
+.popup-container h2 {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+
+.popup-container p,
+.popup-container a {
+  font-size: 1.4rem;
+  margin-bottom: 4px;
+}
+
+.control-geolocate .mapboxgl-ctrl-icon,
+.control-navigation .mapboxgl-ctrl-icon {
+  margin-bottom: 0;
+}
+
+.control-geolocate {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.control-navigation {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
