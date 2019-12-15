@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import ReactMapGL, { NavigationControl } from 'react-map-gl';
-import axios from 'axios';
 
-import { defaultMapStyle, pointLayer, circleLayer, makeFeatureCollection } from './map-style.js';
+import {
+  defaultMapStyle,
+  pointLayer,
+  circleLayer,
+  userLocationLayer,
+  makeFeatureCollection
+} from './map-style';
+
+import mapService from './map-service';
 
 import Popup from './Popup';
 
@@ -12,29 +19,18 @@ import './map.css';
 const Map = ({
   endpoint,
   coords,
+  defaultSearchRadius = 2500,
+  defaultZoom = 13,
 }) => {
   const defaultViewport = {
-    zoom: 13,
+    zoom: defaultZoom,
   };
   const [userLocation, setUserLocation] = useState();
-  const [searchRadius, setSearchRadius] = useState(2500);
+  const [searchRadius, setSearchRadius] = useState(defaultSearchRadius);
   const [viewport, setViewport] = useState(defaultViewport);
   const [mapStyle, setMapStyle] = useState(defaultMapStyle);
   const [interactiveLayerIds, setInteractiveLayerIds] = useState([]);
   const [popup, setPopup] = useState();
-
-  const fetchData = async () => {
-    const { latitude, longitude } = userLocation;
-    const url = `${endpoint}?lng=${longitude}&lat=${latitude}&r=${searchRadius}`;
-    
-    try {
-      const response = await axios.get(url);
-      const { data } = response;
-      updateMapStyle(data);
-    } catch(err) {
-      console.error(err);
-    }
-  }
 
   const updateMapStyle = data => {
     const newMapStyle = createNewMapStyle(data);
@@ -52,13 +48,23 @@ const Map = ({
         coordinates: [longitude, latitude],
       },
     }]);
+    const userLocationSource = makeFeatureCollection([{
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [longitude, latitude],
+      },
+    }]);
 
     const mapLayers = defaultMapStyle.get('layers');
 
     const newMapStyle = mapStyle
       .setIn(['sources', 'water-stations'], stationsSource)
       .setIn(['sources', 'search-radius'], radiusSource)
-      .set('layers', mapLayers.push(...[pointLayer, circleLayer(searchRadius, latitude)]));
+      .setIn(['sources', 'user-location'], userLocationSource)
+      .set('layers',
+        mapLayers.push(...[pointLayer, userLocationLayer, circleLayer(searchRadius, latitude)])
+      );
 
     return newMapStyle;
   }
@@ -74,6 +80,19 @@ const Map = ({
       };
       setPopup(props);
     }
+  };
+
+  const handleUserLocationChange = async () => {
+    const { latitude, longitude } = userLocation;
+    const result = await mapService.search({
+      latitude,
+      longitude,
+      endpoint,
+      searchRadius,
+    });
+
+    if (result)
+      updateMapStyle(result);
   };
 
   useEffect(() => {
@@ -98,7 +117,8 @@ const Map = ({
   }, []);
 
   useEffect(() => {
-    if (userLocation) fetchData();
+    if (userLocation)
+      handleUserLocationChange();
   }, [userLocation]);
 
   return (
@@ -108,9 +128,10 @@ const Map = ({
       height="100%"
       mapStyle={mapStyle}
       onViewportChange={v => setViewport(v)}
-      getCursor={({isHovering, isDragging}) => isHovering ? 'pointer' : 'default'}
+      getCursor={({isHovering}) => isHovering ? 'pointer' : 'default'}
       onClick={handleMarkerClick}
       interactiveLayerIds={interactiveLayerIds}
+      clickRadius={6}
     >
       {popup && (
         <Popup

@@ -52,6 +52,7 @@ const App = props => (
             <Map
               endpoint={endpoint}
               coords={props.coords}
+              defaultSearchRadius={2500}
             />
           </div>
         )}

@@ -17,7 +17,17 @@ export const pointLayer = fromJS({
   source: 'water-stations',
   type: 'circle',
   paint: {
-    'circle-radius': 4,
+    'circle-radius': 6,
+    'circle-color': '#7100b0'
+  }
+});
+
+export const userLocationLayer = fromJS({
+  id: 'user-location',
+  source: 'user-location',
+  type: 'circle',
+  paint: {
+    'circle-radius': 8,
     'circle-color': '#007cbf'
   }
 });
@@ -38,7 +48,7 @@ export const circleLayer = (radiusInMeters, latitude) => (
         base: 2
       },
       'circle-color': '#ff0000',
-      'circle-opacity': 0.15
+      'circle-opacity': 0.055
     }
   })
 );
