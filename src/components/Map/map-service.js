@@ -1,12 +1,16 @@
 import axios from 'axios';
 
-const search = async ({
-  endpoint,
+const endpointBaseUrl = process.env.ENDPOINT_BASE_URL || '';
+const serviceEndpoint = `${endpointBaseUrl}/api/water-stations`;
+const endpointSearchByRadius = `${serviceEndpoint}/searchByRadius.js`;
+const endpointSearchByBox = `${serviceEndpoint}/searchByBox.js`;
+
+const searchByRadius = async ({
   latitude,
   longitude,
   searchRadius = 2000,
 }) => {
-  const url = `${endpoint}?lng=${longitude}&lat=${latitude}&r=${searchRadius}`;
+  const url = `${endpointSearchByRadius}?lng=${longitude}&lat=${latitude}&r=${searchRadius}`;
   
   try {
     const response = await axios.get(url);
@@ -18,6 +22,21 @@ const search = async ({
   }
 };
 
-export default {
-  search
+const searchByBox = async ({ sw, ne }) => {
+  const url = `${endpointSearchByBox}?sw=${sw.lng},${sw.lat}&ne=${ne.lng},${ne.lat}`;
+
+  try {
+    const response = await axios.get(url);
+    const { data } = response;
+    return data;
+  } catch(err) {
+    console.error(err);
+    return false;
+  }
 };
+
+export default {
+  searchByRadius,
+  searchByBox
+};
+

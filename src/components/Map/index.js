@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ReactMapGL, { NavigationControl } from 'react-map-gl';
+import ReactMapGL from 'react-map-gl';
 
 import {
   defaultMapStyle,
@@ -17,13 +17,16 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import './map.css';
 
 const Map = ({
-  endpoint,
   coords,
   defaultSearchRadius = 2500,
   defaultZoom = 13,
 }) => {
   const defaultViewport = {
     zoom: defaultZoom,
+    minZoom: defaultZoom - 1,
+    width: '100%',
+    height: '100%',
+    clickRadius: 6,
   };
   const [userLocation, setUserLocation] = useState();
   const [searchRadius, setSearchRadius] = useState(defaultSearchRadius);
@@ -31,6 +34,9 @@ const Map = ({
   const [mapStyle, setMapStyle] = useState(defaultMapStyle);
   const [interactiveLayerIds, setInteractiveLayerIds] = useState([]);
   const [popup, setPopup] = useState();
+  const [panning, setPanning] = useState(false);
+  const [zooming, setZooming] = useState(false);
+  const [ref, setRef] = useState(React.createRef());
 
   const updateMapStyle = data => {
     const newMapStyle = createNewMapStyle(data);
@@ -82,17 +88,44 @@ const Map = ({
     }
   };
 
-  const handleUserLocationChange = async () => {
-    const { latitude, longitude } = userLocation;
-    const result = await mapService.search({
+  const searchByRadius = async (latitude, longitude) => {
+    const result = await mapService.searchByRadius({
       latitude,
       longitude,
-      endpoint,
       searchRadius,
     });
 
     if (result)
       updateMapStyle(result);
+  };
+
+  const searchByBoundingBox = async (sw, ne) => {
+    const bounds = ref.getMap().getBounds();
+    const bottomLeftCoords = bounds.getSouthWest(); 
+    const upperRightCoords = bounds.getNorthEast();
+    const searchOptions = { sw: bottomLeftCoords, ne: upperRightCoords };
+    const result = await mapService.searchByBox(searchOptions);
+
+    if (result)
+      updateMapStyle(result);
+  };
+
+  const handleViewportChange = viewState => setViewport(viewState);
+
+  const handleInteractionStateChange = interactionState => {
+    const { isPanning, isZooming } = interactionState;
+
+    if (isPanning === undefined && isZooming === undefined)
+      return;
+    
+    if (isPanning === false && panning === true)
+      searchByBoundingBox();
+
+    if (isZooming === false && zooming === true)
+      searchByBoundingBox();
+
+    setZooming(isZooming);
+    setPanning(isPanning);
   };
 
   useEffect(() => {
@@ -117,21 +150,22 @@ const Map = ({
   }, []);
 
   useEffect(() => {
-    if (userLocation)
-      handleUserLocationChange();
+    if (userLocation) {
+      const { latitude, longitude } = userLocation; 
+      searchByRadius(latitude, longitude);
+    }
   }, [userLocation]);
 
   return (
     <ReactMapGL
       {...viewport}
-      width="100%"
-      height="100%"
       mapStyle={mapStyle}
-      onViewportChange={v => setViewport(v)}
+      onViewportChange={handleViewportChange}
+      onInteractionStateChange={handleInteractionStateChange}
       getCursor={({isHovering}) => isHovering ? 'pointer' : 'default'}
       onClick={handleMarkerClick}
       interactiveLayerIds={interactiveLayerIds}
-      clickRadius={6}
+      ref={ref => setRef(ref)}
     >
       {popup && (
         <Popup
@@ -145,10 +179,6 @@ const Map = ({
           onClose={() => setPopup(null)}
         />
       )}
-      <NavigationControl
-        className="control-navigation"
-        showCompass={false}
-      />
     </ReactMapGL>
   );
 }

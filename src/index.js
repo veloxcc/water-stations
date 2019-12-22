@@ -12,8 +12,6 @@ import 'milligram';
 import './styles.css';
 
 const googleTrackingId = process.env.GOOGLE_TRACKING_ID || '';
-const endpointBaseUrl = process.env.ENDPOINT_BASE_URL || '';
-const endpoint = `${endpointBaseUrl}/api/water-stations/search.js`;
 
 ReactGA.initialize(googleTrackingId);
 
@@ -50,7 +48,6 @@ const App = props => (
         {props.coords && (
           <div className="map-overlay">
             <Map
-              endpoint={endpoint}
               coords={props.coords}
               defaultSearchRadius={2500}
             />
