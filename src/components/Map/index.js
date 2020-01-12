@@ -173,9 +173,9 @@ const Map = ({
           longitude={popup.coordinates[0]}
           latitude={popup.coordinates[1]}
           closeOnClick={false}
-          locationArea={popup.geo_local_area}
+          locationArea={popup.area_name}
           locationName={popup.name}
-          operationInfo={popup.in_operation}
+          operationInfo={popup.operation}
           onClose={() => setPopup(null)}
         />
       )}

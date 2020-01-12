@@ -25,7 +25,9 @@ const Popup = ({
       {operationInfo && (
         <p>{`In operation: ${operationInfo}`}</p>
       )}
-      <a href={`https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&travelmode=bicycling`} target="_blank">Directions here</a>
+      <p className="popup-link">
+        <a href={`https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&travelmode=bicycling`} target="_blank">Directions here</a>
+      </p>
     </div>
   </PopupBase>
 );
