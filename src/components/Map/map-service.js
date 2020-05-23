@@ -2,8 +2,8 @@ import axios from 'axios';
 
 const endpointBaseUrl = process.env.ENDPOINT_BASE_URL || '';
 const serviceEndpoint = `${endpointBaseUrl}/api/water-stations`;
-const endpointSearchByRadius = `${serviceEndpoint}/searchByRadius.js`;
-const endpointSearchByBox = `${serviceEndpoint}/searchByBox.js`;
+const endpointSearchByRadius = `${serviceEndpoint}/searchByRadius`;
+const endpointSearchByBox = `${serviceEndpoint}/searchByBox`;
 
 const searchByRadius = async ({
   latitude,
@@ -39,4 +39,3 @@ export default {
   searchByRadius,
   searchByBox
 };
-
