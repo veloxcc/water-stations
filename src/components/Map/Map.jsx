@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ReactMapGL from 'react-map-gl';
 
 import {
@@ -38,7 +38,7 @@ const Map = ({
   const [popup, setPopup] = useState();
   const [panning, setPanning] = useState(false);
   const [zooming, setZooming] = useState(false);
-  const [ref, setRef] = useState(React.createRef());
+  const mapRef = useRef(null);
 
   const updateMapStyle = data => {
     mapCache.add(data);
@@ -104,7 +104,7 @@ const Map = ({
   };
 
   const searchByBoundingBox = async (sw, ne) => {
-    const bounds = ref.getMap().getBounds();
+    const bounds = mapRef.current.getMap().getBounds();
     const searchOptions = {
       sw: bounds.getSouthWest(),
       ne: bounds.getNorthEast()
@@ -190,7 +190,7 @@ const Map = ({
         getCursor={({isHovering}) => isHovering ? 'pointer' : 'default'}
         onClick={handleMarkerClick}
         interactiveLayerIds={interactiveLayerIds}
-        ref={ref => setRef(ref)}
+        ref={mapRef}
       >
         {popup && (
           <Popup

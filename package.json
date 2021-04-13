@@ -18,7 +18,7 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-ga": "^2.5.7",
-    "react-geolocated": "^3.0.1",
+    "react-geolocated": "^3.1.0",
     "react-icons": "^3.9.0",
     "react-map-gl": "^5.0.11"
   },
@@ -29,6 +29,6 @@
     "@babel/preset-react": "^7.0.0",
     "babel-preset-env": "^1.7.0",
     "dotenv": "^8.1.0",
-    "parcel-bundler": "^1.12.3"
+    "parcel-bundler": "1.12.3"
   }
 }

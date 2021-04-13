@@ -43,7 +43,7 @@ const App = props => {
               </Notification>
             )}
 
-            {!props.isGeolocationEnabled && props.positionError && (
+            {!props.isGeolocationEnabled && (
               <Notification type="warning">
                 <b>Warning:</b> This application requires the use of location services, please 
                 enable them on your device to use this application.
